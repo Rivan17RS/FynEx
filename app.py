@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session
 from decimal import Decimal, ROUND_HALF_UP
 import database
 import requests
+import os
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "devkey")
@@ -107,7 +108,5 @@ def toggle_currency():
     return redirect("/")
 
 # Assigning port for RENDER
-import os
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
