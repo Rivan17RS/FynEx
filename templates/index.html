@@ -11,7 +11,8 @@
 
 <body>
 
-<h1><i class="fa-solid fa-wallet"></i> FynEx - Your Financial Expense Tracker</h1>
+<h1><i class="fa-solid fa-wallet"></i> FynEx - Financial Tracker</h1>
+<p>Track your expenses, manage your budget, and gain insights into your spending habits.</p>
 
 <div class="rate-card">
     <span>
@@ -59,93 +60,90 @@
     <button type="submit" class="add-btn">Add Expense</button>
 </form>
 
-<table>
-    <tr>
-        <th>Date</th>
-        <th>Category</th>
-        <th>Amount</th>
-        <th>Description</th>
-        <th>Action</th>
-    </tr>
+<div class="table-wrapper"></div>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Action</th>
+        </tr>
 
-    {% for expense in expenses %}
-    <tr>
-        <td>{{ expense[1] }}</td>
-        <td>{{ expense[2] }}</td>
-        <td>
-            {% if currency == "CRC" %}
-                ₡{{ "%.2f"|format(expense[3]) }}
-            {% else %}
-                ${{ "%.2f"|format(expense[3]) }}
-            {% endif %}
-        </td>
-        <td>{{ expense[4] }}</td>
-        <td>
-            <a href="/delete/{{ expense[0] }}" class="delete-btn">Delete</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+        {% for expense in expenses %}
+        <tr>
+            <td>{{ expense[1] }}</td>
+            <td>{{ expense[2] }}</td>
+            <td>
+                {% if currency == "CRC" %}
+                    ₡{{ "%.2f"|format(expense[3]) }}
+                {% else %}
+                    ${{ "%.2f"|format(expense[3]) }}
+                {% endif %}
+            </td>
+            <td>{{ expense[4] }}</td>
+            <td>
+                <a href="/delete/{{ expense[0] }}" class="delete-btn">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>    
 
-<h2>
-    Total Balance:
-    {% if currency == "CRC" %}
-        ₡{{ "%.2f"|format(balance) }}
-    {% else %}
-        ${{ "%.2f"|format(balance) }}
-    {% endif %}
-</h2>
+<p class="exchange-note">
+    ℹ️ ESP: Los montos se almacenan en USD y se convierten a CRC usando el tipo de cambio actual. 
+    Variaciones en el dólar pueden afectar los valores mostrados en colones.
+</p>
+
+<div class="balance-card">
+    <div class="balance-label">Total Balance</div>
+    <div class="balance-amount">
+        {% if currency == "CRC" %}
+            ₡{{ "%.2f"|format(balance) }}
+        {% else %}
+            ${{ "%.2f"|format(balance) }}
+        {% endif %}
+    </div>
+</div>
 
 <h3>Monthly Summary</h3>
-<table>
-    <tr>
-        <th>Month</th>
-        <th>Total</th>
-    </tr>
-    {% for month in monthly %}
-    <tr>
-        <td>{{ month[0] }}</td>
-        <td>
-            {% if currency == "CRC" %}
-                ₡{{ "%.2f"|format(month[1]) }}
-            {% else %}
-                ${{ "%.2f"|format(month[1]) }}
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<div class="summary-wrapper"></div>
+    <table>
+        <tr>
+            <th>Month</th>
+            <th>Total</th>
+        </tr>
+        {% for month in monthly %}
+        <tr>
+            <td>{{ month[0] }}</td>
+            <td>
+                {% if currency == "CRC" %}
+                    ₡{{ "%.2f"|format(month[1]) }}
+                {% else %}
+                    ${{ "%.2f"|format(month[1]) }}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 
 <h3>Category Distribution</h3>
 
-<div class="chart-container" style="max-width:400px; margin: 20px auto;">
+<div class="chart-container">
     <canvas id="categoryChart"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const ctx = document.getElementById('categoryChart');
-
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: {{ categories | map(attribute=0) | list | safe }},
-            datasets: [{
-                data: {{ categories | map(attribute=1) | list | safe }},
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
+    window.chartLabels = {{ categories | map(attribute=0) | list | safe }};
+    window.chartData = {{ categories | map(attribute=1) | list | safe }};
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='chart.js') }}"></script>
+
 
 </body>
 </html>
